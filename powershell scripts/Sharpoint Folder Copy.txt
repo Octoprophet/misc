@@ -1,0 +1,10 @@
+$spSite = "https://frederickwater.sharepoint.com/sites/Engineering"
+$sourceFile = "Shared Documents/General/Test/Original/Original.pdf"
+$targetFolder = "Shared Documents/General/Test/New"
+$newFile = "Shared Documents/General/Test/New/Original.pdf
+
+Connect-PnPOnline -Url $spSite -UseWebLogin
+
+Copy-PnPFile -SourceURL $sourceFile -TargetURL $targetFolder
+
+Rename-PnpFile -siteRelativeUrl $newFile -TargetFileName "testfile.pdf"
