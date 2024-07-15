@@ -1,0 +1,48 @@
+#set username and password
+postBody = {
+    "tenant": "tenant27032025",
+    "username": "ignitionapi",
+    "password": "Fortune3^"
+}
+
+postURL = "https://us.trimbleunity.com/unity/tokens"
+
+#apply username and password to postURL
+apiToken = "Bearer " + system.net.httpPost(postURL, postData = postBody, contentType = "application/json")
+
+#select current date and time, format it, and concatenate it into the full URL
+current_date_time = system.date.now()
+formatted_date_time = system.date.format(current_date_time, "yyyy-MM-dd'T'00:00:00.000'Z'")
+url_base = "https://api.telogdhs.net/api/tabularreports/166/data?starttime=2024-01-01T00:00:00.000Z&endtime="
+url_end = "&enabledst=true&siteid=2"
+url = url_base + formatted_date_time +url_end
+
+#get request with all the information
+apiGet = system.net.httpGet(url , headerValues={'Authorization': apiToken})
+
+#decoding the Get response
+data_dict = system.util.jsonDecode(apiGet)
+
+# Displaying data
+#print("\nData:")
+#for row in data_dict['data']:
+#    print(row)
+print(data_dict)
+
+#select the most recent bit of data
+newestRow = data_dict['data'][-1]
+print(newestRow)
+
+averagePressure = newestRow[1]
+print(averagePressure)
+
+minPressure = newestRow[2]
+print(minPressure)
+
+maxPressure = newestRow[3]
+print(maxPressure)
+
+pressureRange = newestRow[4]
+print(pressureRange)
+
+#date, average pressure, min pressure, max pressure, range
