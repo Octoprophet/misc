@@ -1,0 +1,106 @@
+import json
+
+#locations and measurement IDs
+information = [
+    {"site": "Office",
+     "inlet": "67",
+     "outlet": "69"},
+    {"site": "Miller Heights",
+     "inlet": "10",
+     "outlet": "12"},
+    {"site": "Walnut Ln",
+     "inlet": "24",
+     "outlet": "20"},
+    {"site": "Lake Frederick",
+    "inlet": "34",
+    "outlet": "36"},
+    {"site": "Rt 522 South",
+    "inlet": "46",
+    "outlet": "48"},
+    {"site": "Sunny Side",
+    "inlet": "60",
+    "outlet": "58"},
+    {"site": "McGhee Rd",
+    "inlet": "79",
+    "outlet": "81"},
+    {"site": "Lenoir Dr",
+    "inlet": "96",
+    "outlet": "94"},
+    {"site": "Carrol Industrial Park",
+    "inlet": "106",
+    "outlet": "108"},
+    {"site": "84 Lumber",
+    "inlet": "118",
+    "outlet": "120"},
+    {"site": "Woolen Mill",
+    "inlet": "130",
+    "outlet": "132"},
+    {"site": "Rt 11 Clearbrook",
+    "inlet": "139",
+    "outlet": "141"},
+    {"site": "Rutherford Crossing",
+    "inlet": "166",
+    "outlet": "168"},
+    {"site": "Clearbrook Park Maintenance",
+    "inlet": "160",
+    "outlet": "162"},
+    {"site": "Clearbrook Pool",
+    "inlet": "183",
+    "outlet": "181"},
+    {"site": "Hopewell Ln",
+    "inlet": "184",
+    "outlet": "186"},
+]
+
+#credentials
+postBody = {
+    "tenant": "tenant27032025",
+    "username": "ignitionapi",
+    "password": "Fortune3^"
+}
+postBodyJson = json.dumps(postBody)
+
+
+postURL = "https://usrm.telogdhs.net/api/v2/tokens"
+
+#apply username and password to postURL
+postResponse = system.net.httpPost(postURL, postData = postBodyJson, contentType = "application/json")
+response = json.loads(postResponse)
+apiToken = "Bearer " + response["token"]
+print("api Token: " + apiToken)
+
+for x in information:
+    #pull the values from each entry
+	site = x["site"]
+	inlet = x["inlet"]
+	outlet = x["outlet"]
+        
+    #generate the inlet and outlet url from ID
+	inputURL = "https://api.telogdhs.net/api/measurements/{}/data?last=14400".format(str(inlet))
+	outputURL = "https://api.telogdhs.net/api/measurements/{}/data?last=14400".format(str(outlet))
+        
+    #call GET api
+	inputGet = system.net.httpGet(inputURL , headerValues={'Authorization': apiToken})
+	outputGet = system.net.httpGet(outputURL , headerValues={'Authorization': apiToken})
+		
+	#convert info to json
+	inputData = json.loads(inputGet)
+	outputData = json.loads(outputGet)
+		
+	#select newest data
+	try:
+		newestInput = inputData[-1]
+		newestOutput = outputData[-1]
+		
+		#select specific measurement
+		inletPSI = newestInput['avg']
+		print(inletPSI)
+		outletPSI = newestOutput['avg']
+		print(outletPSI)
+			
+		#assign values to tags
+		system.tag.writeAsync("[default]Telog API/" + site + "/Inlet Pressure", inletPSI)
+		system.tag.writeAsync("[default]Telog API/" + site + "/Outlet Pressure", outletPSI)
+	except:
+		print(site + " did not process-------------------------------------------")
+	

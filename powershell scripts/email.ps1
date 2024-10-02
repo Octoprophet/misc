@@ -1,0 +1,6 @@
+$smtpServer = "smtp.office365.com"
+$emailFrom = "wesley.gardner@frederickwater.com"
+$emailTo = "wesley.gardner@frederickwater.com"
+$messageSubject = "I am testing ninja email automation"
+$messageBody = "I am seeing if I can use ninja to send an SMTP email"
+$emailUsername = "wesley.gardner@frederickwater.com"

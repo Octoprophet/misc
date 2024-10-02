@@ -1,0 +1,56 @@
+import json
+
+location = "Miller Heights"
+
+def urlGeneration():
+	idValues = [10, 12]
+	urls = []
+	for x in idValues:
+		url = "https://api.telogdhs.net/api/measurements/{}/data?last=14400".format(str(x))
+		urls.append(url)
+		print(url)
+	return urls
+
+bothURLs = urlGeneration()
+inputURL = bothURLs[0]
+outputURL = bothURLs[1]
+
+
+#set username and password
+postBody = {
+    "tenant": "tenant27032025",
+    "username": "ignitionapi",
+    "password": "Fortune3^"
+}
+
+postBodyJson = json.dumps(postBody)
+
+postURL = "https://usrm.telogdhs.net/api/v2/tokens"
+
+#apply username and password to postURL
+postResponse = system.net.httpPost(postURL, postData = postBodyJson, contentType = "application/json")
+response = json.loads(postResponse)
+apiToken = "Bearer " + response["token"]
+print("api Token: " + apiToken)
+
+
+#get request with all the information
+inputGet = system.net.httpGet(inputURL , headerValues={'Authorization': apiToken})
+outputGet = system.net.httpGet(outputURL , headerValues={'Authorization': apiToken})
+
+#print(apiGet)
+
+inputData = json.loads(inputGet)
+outputData = json.loads(outputGet)
+
+newestInput = inputData[-1]
+newestOutput = outputData[-1]
+
+inletPSI = newestInput['avg']
+print(inletPSI)
+
+outletPSI = newestOutput['avg']
+print(outletPSI)
+
+system.tag.writeAsync("[default]Telog API/" + location + "/Inlet Pressure", inletPSI)
+system.tag.writeAsync("[default]Telog API/" + location + "/Outlet Pressure", outletPSI)
